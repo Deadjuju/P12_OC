@@ -2,6 +2,7 @@ from enum import Enum
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser, Group
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -57,7 +58,10 @@ class User(AbstractUser, DateMixin):
     password: str = models.CharField(_("password"), max_length=128)
     first_name: str = models.CharField(_("first name"), max_length=150, blank=False)
     last_name: str = models.CharField(_("last name"), max_length=150, blank=False)
+    phone_number: str = models.CharField(_("phone number"), max_length=20, blank=True)
     role: Role = models.CharField(max_length=15, choices=ROLE_CHOICES, blank=False)
+
+    is_cleaned = False
 
     @property
     def full_name(self) -> str:
@@ -66,17 +70,33 @@ class User(AbstractUser, DateMixin):
     def __str__(self) -> str:
         return f"{self.full_name} ({self.email})"
 
+    def _is_phone_number_valid(self) -> bool:
+        return bool(len(self.phone_number) >= 10 and self.phone_number.isdigit())
+
+    def _format_phone_number(self):
+        self.phone_number = self.phone_number.replace(" ", "").replace(".", "")
+
+    def clean(self) -> None:
+        self.is_cleaned = True
+        if not self._is_phone_number_valid():
+            raise ValidationError(f"ERROR (Phone number): '{self.phone_number}' is an invalide format.")
+        super(User, self).clean()
+
     def save(self, *args, **kwargs) -> None:
+        self._format_phone_number()
+        if not self.is_cleaned:
+            self.full_clean()
+
         super().save(*args, **kwargs)
         match self.role:
             case Role.MANAGEMENT.value:
-                group = Group.objects.get(name='management')
+                group, create = Group.objects.get_or_create(name='management')
                 group.user_set.add(self)
             case Role.COMMERCIAL.value:
-                group = Group.objects.get(name='commercial')
+                group, create = Group.objects.get_or_create(name='commercial')
                 group.user_set.add(self)
             case Role.SUPPORT.value:
-                group = Group.objects.get(name='support')
+                group, create = Group.objects.get_or_create(name='support')
                 group.user_set.add(self)
 
     class Meta:
