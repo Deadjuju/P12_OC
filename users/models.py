@@ -85,4 +85,4 @@ class User(AbstractUser, DateMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'password', 'team']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'password', 'role']
