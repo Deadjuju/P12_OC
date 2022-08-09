@@ -55,7 +55,6 @@ class User(AbstractUser, DateMixin):
 
     username = None
     email: str = models.EmailField(_('email address'), unique=True)
-    password: str = models.CharField(_("password"), max_length=128)
     first_name: str = models.CharField(_("first name"), max_length=150, blank=False)
     last_name: str = models.CharField(_("last name"), max_length=150, blank=False)
     phone_number: str = models.CharField(_("phone number"), max_length=20, blank=True)
@@ -85,7 +84,7 @@ class User(AbstractUser, DateMixin):
             if not self._is_phone_number_valid():
                 raise ValidationError(f"ERROR (Phone number): |--> {self.phone_number} <--| is an invalide format.")
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args, **kwargs):
         if not self.is_cleaned:
             self.full_clean()
         super().save(*args, **kwargs)
