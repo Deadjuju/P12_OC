@@ -90,7 +90,7 @@ class User(AbstractUser, DateMixin):
                 group.user_set.add(self)
 
     class Meta:
-        ordering = ["email"]
+        ordering = ["last_name"]
 
     objects = UserManager()
 
