@@ -2,11 +2,11 @@ from enum import Enum
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser, Group
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from mixin import DateMixin
+from utils import validate_phone_number
 
 
 class UserManager(BaseUserManager):
@@ -45,7 +45,7 @@ class Role(Enum):
 
 
 class User(AbstractUser, DateMixin):
-    """User model."""
+    """User model"""
 
     ROLE_CHOICES = [
         (Role.MANAGEMENT.value, "Team Management"),
@@ -69,20 +69,10 @@ class User(AbstractUser, DateMixin):
     def __str__(self) -> str:
         return f"{self.full_name} ({self.email})"
 
-    def _is_phone_number_valid(self) -> bool:
-        """ Check if phone number is valid """
-        return bool(len(self.phone_number) >= 10 and self.phone_number.isdigit())
-
-    def _format_phone_number(self) -> None:
-        """ Format the phone number by removing dots and spaces """
-        self.phone_number = self.phone_number.replace(" ", "").replace(".", "")
-
     def clean(self) -> None:
         self.is_cleaned = True
         if self.phone_number:
-            self._format_phone_number()
-            if not self._is_phone_number_valid():
-                raise ValidationError(f"ERROR (Phone number): |--> {self.phone_number} <--| is an invalide format.")
+            self.phone_number = validate_phone_number(self.phone_number)
 
     def save(self, *args, **kwargs):
         if not self.is_cleaned:
