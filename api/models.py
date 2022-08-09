@@ -44,3 +44,36 @@ class Client(DateMixin):
         super().save(*args, **kwargs)
 
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email', ]
+
+
+class Contract(DateMixin, models.Model):
+
+    sales_contact: User = models.ForeignKey(to=User,
+                                            limit_choices_to={"role": Role.COMMERCIAL.value},
+                                            on_delete=models.CASCADE,
+                                            related_name="commercials",
+                                            null=True,
+                                            blank=True)
+    client: Client = models.ForeignKey(to=Client,
+                                       on_delete=models.CASCADE,
+                                       related_name="clients")
+    status: bool = models.BooleanField(verbose_name="Contract signed", default=False)
+    amount: float = models.FloatField(verbose_name="Amount (€)")
+    payment_due = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def contract_number(self) -> str:
+        return f"{'0' * (6 - len(str(self.pk)))}{self.pk}"
+
+    @property
+    def contract_title(self) -> str:
+        formatted_date = self.date_created.strftime('%m%d%Y')
+        base_title = f"{self.contract_number}__EPICEVENTS__{formatted_date}#{self.client.pk}"
+        if not self.status:
+            return f"{base_title}_(UNSIGNED)"
+        if not self.payment_due:
+            return f"{base_title}_(SIGNED / UNPAID)"
+        return f"{base_title}_(PAID)"
+
+    def __str__(self) -> str:
+        return self.contract_title
