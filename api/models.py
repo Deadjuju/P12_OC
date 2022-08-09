@@ -1,7 +1,7 @@
 from django.db import models
 
 from mixin import DateMixin
-from users.models import User
+from users.models import Role, User
 from utils import validate_phone_number
 
 
@@ -14,10 +14,13 @@ class Client(DateMixin):
     phone: str = models.CharField(max_length=20, blank=True)
     mobile: str = models.CharField(max_length=20, blank=True)
     company_name: str = models.CharField(max_length=250, blank=False)
+    is_confirmed_client: bool = models.BooleanField(verbose_name="Confirmed client", default=False)
     sales_contact: User = models.ForeignKey(to=User,
+                                            limit_choices_to={"role": Role.COMMERCIAL.value},
                                             on_delete=models.CASCADE,
                                             related_name="clients",
-                                            null=True, blank=True)
+                                            null=True,
+                                            blank=True)
 
     is_cleaned: bool = False
 
