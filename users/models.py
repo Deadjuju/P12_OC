@@ -61,7 +61,7 @@ class User(AbstractUser, DateMixin):
     phone_number: str = models.CharField(_("phone number"), max_length=20, blank=True)
     role: Role = models.CharField(max_length=15, choices=ROLE_CHOICES, blank=False)
 
-    is_cleaned = False
+    is_cleaned: bool = False
 
     @property
     def full_name(self) -> str:
@@ -71,22 +71,23 @@ class User(AbstractUser, DateMixin):
         return f"{self.full_name} ({self.email})"
 
     def _is_phone_number_valid(self) -> bool:
+        """ Check if phone number is valid """
         return bool(len(self.phone_number) >= 10 and self.phone_number.isdigit())
 
-    def _format_phone_number(self):
+    def _format_phone_number(self) -> None:
+        """ Format the phone number by removing dots and spaces """
         self.phone_number = self.phone_number.replace(" ", "").replace(".", "")
 
     def clean(self) -> None:
         self.is_cleaned = True
-        if not self._is_phone_number_valid():
-            raise ValidationError(f"ERROR (Phone number): '{self.phone_number}' is an invalide format.")
-        super(User, self).clean()
+        if self.phone_number:
+            self._format_phone_number()
+            if not self._is_phone_number_valid():
+                raise ValidationError(f"ERROR (Phone number): |--> {self.phone_number} <--| is an invalide format.")
 
     def save(self, *args, **kwargs) -> None:
-        self._format_phone_number()
         if not self.is_cleaned:
             self.full_clean()
-
         super().save(*args, **kwargs)
         match self.role:
             case Role.MANAGEMENT.value:
