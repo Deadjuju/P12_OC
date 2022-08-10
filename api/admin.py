@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.models import Client, Contract
+from api.models import Client, Contract, Event
 
 
 class ClientAdmin(admin.ModelAdmin):
@@ -11,16 +11,24 @@ class ClientAdmin(admin.ModelAdmin):
               "company_name",
               "is_confirmed_client",
               "sales_contact")
-    search_fields = ['email', 'company_name']
+    search_fields = ["email", "company_name"]
     search_help_text = "Client email / Company"
 
 
 class ContractAdmin(admin.ModelAdmin):
     list_display = ("contract_title", "sales_contact", "status")
     fields = ("sales_contact", "client", "status", "amount", "payment_due")
-    search_fields = ['client', 'contract_title']
-    search_help_text = "Client / contract_title"
+    search_fields = ["client", "contract_title"]
+    search_help_text = "Client / Title"
+
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ("event_name", "client", "support_contact", )
+    fields = ("client", "support_contact", "attendees", "event_status", "event_date", "notes")
+    search_fields = ["client", "event_status"]
+    search_help_text = "Client / Status"
 
 
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Contract, ContractAdmin)
+admin.site.register(Event, EventAdmin)

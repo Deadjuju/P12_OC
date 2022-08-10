@@ -1,3 +1,6 @@
+from datetime import datetime, date
+from enum import Enum
+
 from django.db import models
 
 from mixin import DateMixin
@@ -47,6 +50,7 @@ class Client(DateMixin):
 
 
 class Contract(DateMixin, models.Model):
+    """Contract model"""
 
     sales_contact: User = models.ForeignKey(to=User,
                                             limit_choices_to={"role": Role.COMMERCIAL.value},
@@ -59,7 +63,7 @@ class Contract(DateMixin, models.Model):
                                        related_name="clients")
     status: bool = models.BooleanField(verbose_name="Contract signed", default=False)
     amount: float = models.FloatField(verbose_name="Amount (€)")
-    payment_due = models.DateTimeField(null=True, blank=True)
+    payment_due: datetime = models.DateTimeField(null=True, blank=True)
 
     @property
     def contract_number(self) -> str:
@@ -77,3 +81,46 @@ class Contract(DateMixin, models.Model):
 
     def __str__(self) -> str:
         return self.contract_title
+
+    class Meta:
+        ordering = ["client"]
+
+
+class EventStatus(Enum):
+    FUTURE = "FUTURE"
+    IN_PROGRESS = "IN PROGRESS"
+    ENDED = "ENDED"
+
+
+class Event(DateMixin, models.Model):
+    """Event model"""
+
+    STATUS_CHOICES = [
+        (EventStatus.FUTURE.value, "Future event"),
+        (EventStatus.IN_PROGRESS.value, "Event in progress"),
+        (EventStatus.ENDED.value, "Event ended"),
+    ]
+
+    client: Client = models.ForeignKey(to=Client,
+                                       on_delete=models.CASCADE,
+                                       related_name="events_client")
+    attendees: int = models.PositiveIntegerField(default=0)
+    support_contact: User = models.ForeignKey(to=User,
+                                              limit_choices_to={"role": Role.SUPPORT.value},
+                                              on_delete=models.CASCADE,
+                                              related_name="events_support",
+                                              null=True,
+                                              blank=True)
+    event_status: EventStatus = models.CharField(max_length=20, choices=STATUS_CHOICES, blank=False)
+    event_date: date = models.DateField(null=True, blank=True)
+    notes = models.TextField(help_text="Important notes", blank=True)
+
+    @property
+    def event_name(self) -> str:
+        number = f"{'0' * (6 - len(str(self.pk)))}{self.pk}"
+        formatted_date = self.event_date.strftime('%m%d%Y')
+        name = f"EVENT-{number} - {formatted_date} - ({self.event_status})"
+        return name
+
+    class Meta:
+        ordering = ["client"]
