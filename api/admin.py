@@ -16,14 +16,14 @@ class ClientAdmin(admin.ModelAdmin):
 
 
 class ContractAdmin(admin.ModelAdmin):
-    list_display = ("contract_title", "sales_contact", "status")
+    list_display = ("contract_title", "sales_contact", "status", "date_created", "date_updated",)
     fields = ("sales_contact", "client", "status", "amount", "payment_due")
     search_fields = ["client", "contract_title"]
     search_help_text = "Client / Title"
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("event_name", "client", "support_contact", )
+    list_display = ("event_name", "client", "support_contact", "date_created", "date_updated", )
     fields = ("client", "support_contact", "attendees", "event_status", "event_date", "notes")
     search_fields = ["client", "event_status"]
     search_help_text = "Client / Status"
