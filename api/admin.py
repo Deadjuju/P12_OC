@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.models import Client, Contract, Event
+from api.models import Client, Contract, Event, EventStatus
 
 
 class ClientAdmin(admin.ModelAdmin):
@@ -29,6 +29,13 @@ class EventAdmin(admin.ModelAdmin):
     search_help_text = "Client / Status"
 
 
+class EventStatusAdmin(admin.ModelAdmin):
+    list_display = ("status", )
+    fields = ("status", )
+    search_fields = ["status", ]
+
+
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Contract, ContractAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(EventStatus, EventStatusAdmin)

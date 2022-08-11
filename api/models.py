@@ -86,20 +86,20 @@ class Contract(DateMixin, models.Model):
         ordering = ["client"]
 
 
-class EventStatus(Enum):
-    FUTURE = "FUTURE"
-    IN_PROGRESS = "IN PROGRESS"
-    ENDED = "ENDED"
+class EventStatus(models.Model):
+    """Event status possibilities"""
+
+    status: str = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.status.title()
+
+    class Meta:
+        verbose_name_plural = "Event status"
 
 
 class Event(DateMixin, models.Model):
     """Event model"""
-
-    STATUS_CHOICES = [
-        (EventStatus.FUTURE.value, "Future event"),
-        (EventStatus.IN_PROGRESS.value, "Event in progress"),
-        (EventStatus.ENDED.value, "Event ended"),
-    ]
 
     client: Client = models.ForeignKey(to=Client,
                                        on_delete=models.CASCADE,
@@ -111,7 +111,9 @@ class Event(DateMixin, models.Model):
                                               related_name="events_support",
                                               null=True,
                                               blank=True)
-    event_status: EventStatus = models.CharField(max_length=20, choices=STATUS_CHOICES, blank=False)
+    event_status: EventStatus = models.ForeignKey(to=EventStatus,
+                                                  on_delete=models.CASCADE,
+                                                  related_name="events_status")
     event_date: date = models.DateField(null=True, blank=True)
     notes = models.TextField(help_text="Important notes", blank=True)
 
