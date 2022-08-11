@@ -4,8 +4,11 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
-from api.models import Client
-from api.serializers import ClientDetailSerializer, ClientListSerializer
+from api.models import Client, Contract
+from api.serializers import (ClientDetailSerializer,
+                             ClientListSerializer,
+                             ContractDetailSerializer,
+                             ContractListSerializer)
 
 
 class MultipleSerializerMixin:
@@ -55,3 +58,17 @@ class ClientViewset(MultipleSerializerMixin,
     #     else:
     #         print("INVALID!!!!!")
     #         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# -------------------------------- Contract --------------------------------
+
+class ContractViewset(MultipleSerializerMixin,
+                      ModelViewSet):
+
+    serializer_class = ContractListSerializer
+    detail_serializer_class = ContractDetailSerializer
+
+    def get_queryset(self):
+        return Contract.objects.all()
+
+

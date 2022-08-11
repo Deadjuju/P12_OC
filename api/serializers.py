@@ -1,6 +1,6 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
-from api.models import Client
+from api.models import Client, Contract
 from utils import validate_phone_number
 
 
@@ -58,3 +58,35 @@ class ClientDetailSerializer(ModelSerializer):
                   'company_name',
                   'is_confirmed_client',
                   'sales_contact']
+
+
+# -------------------------------- Contract --------------------------------
+
+class ContractListSerializer(ModelSerializer):
+    class Meta:
+        model = Contract
+        fields = ['id',
+                  'contract_title',
+                  'sales_contact',
+                  'client',
+                  'status',
+                  'amount',
+                  'payment_due', ]
+        extra_kwargs = {
+            'status': {'write_only': True},
+            'payment_due': {'write_only': True},
+        }
+
+
+class ContractDetailSerializer(ModelSerializer):
+    client = ClientDetailSerializer()
+
+    class Meta:
+        model = Contract
+        fields = ['id',
+                  'contract_title',
+                  'sales_contact',
+                  'client',
+                  'status',
+                  'amount',
+                  'payment_due', ]
