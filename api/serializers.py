@@ -1,6 +1,5 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
-from api.models import Client, Contract
+from api.models import Client, Contract, Event, EventStatus
 from utils import validate_phone_number
 
 
@@ -36,16 +35,6 @@ class ClientListSerializer(ModelSerializer):
     def validate_phone(cls, value):
         return validate_phone_number(value, is_from_serializer=True)
 
-    # def create(self, validated_data):
-    #     print("HELLO from - Client List Serializer | save method-")
-    #     print("_" * 30)
-    #     print(validated_data)
-    #     project = Client.objects.create(**validated_data)
-    #     print("PROJECT")
-    #     project.save()
-    #     print("SAVE")
-    #     return project
-
 
 class ClientDetailSerializer(ModelSerializer):
     class Meta:
@@ -71,10 +60,12 @@ class ContractListSerializer(ModelSerializer):
                   'client',
                   'status',
                   'amount',
-                  'payment_due', ]
+                  'payment_due',
+                  'event']
         extra_kwargs = {
             'status': {'write_only': True},
             'payment_due': {'write_only': True},
+            'event': {'write_only': True},
         }
 
 
@@ -89,4 +80,47 @@ class ContractDetailSerializer(ModelSerializer):
                   'client',
                   'status',
                   'amount',
-                  'payment_due', ]
+                  'payment_due',
+                  'event']
+
+
+# -------------------------------- Event --------------------------------
+
+class EventListSerializer(ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['id',
+                  'client',
+                  'attendees',
+                  'support_contact',
+                  'event_status',
+                  'event_date',
+                  'notes'
+                  ]
+        extra_kwargs = {
+            'attendees': {'write_only': True},
+            'event_date': {'write_only': True},
+            'notes': {'write_only': True},
+        }
+
+
+class EventStatusSerializer(ModelSerializer):
+    class Meta:
+        model = EventStatus
+        fields = ['id', 'status', ]
+
+
+class EventDetailSerializer(ModelSerializer):
+    client = ClientDetailSerializer()
+    event_status = EventStatusSerializer()
+
+    class Meta:
+        model = Event
+        fields = ['id',
+                  'client',
+                  'attendees',
+                  'support_contact',
+                  'event_status',
+                  'event_date',
+                  'notes'
+                  ]
