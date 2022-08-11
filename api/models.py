@@ -8,14 +8,14 @@ from users.models import Role, User
 from utils import validate_phone_number
 
 
-class Client(DateMixin):
+class Client(DateMixin, models.Model):
     """Client model"""
 
     first_name: str = models.CharField(max_length=25, blank=False)
     last_name: str = models.CharField(max_length=25, blank=False)
     email: str = models.EmailField(unique=True, blank=False)
-    phone: str = models.CharField(max_length=20, blank=True)
-    mobile: str = models.CharField(max_length=20, blank=True)
+    phone: str = models.CharField(max_length=20, blank=True, default="")
+    mobile: str = models.CharField(max_length=20, blank=True, default="")
     company_name: str = models.CharField(max_length=250, blank=False)
     is_confirmed_client: bool = models.BooleanField(verbose_name="Confirmed client", default=False)
     sales_contact: User = models.ForeignKey(to=User,
@@ -46,7 +46,7 @@ class Client(DateMixin):
             self.full_clean()
         super().save(*args, **kwargs)
 
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'email', ]
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'email', 'company_name', ]
 
 
 class Contract(DateMixin, models.Model):
