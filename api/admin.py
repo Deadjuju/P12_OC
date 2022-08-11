@@ -17,7 +17,7 @@ class ClientAdmin(admin.ModelAdmin):
 
 class ContractAdmin(admin.ModelAdmin):
     list_display = ("contract_title", "sales_contact", "status", "date_created", "date_updated",)
-    fields = ("sales_contact", "client", "status", "amount", "payment_due")
+    fields = ("sales_contact", "client", "status", "amount", "payment_due", "event")
     search_fields = ["client", "contract_title"]
     search_help_text = "Client / Title"
 

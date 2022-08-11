@@ -1,5 +1,4 @@
-from datetime import datetime, date
-from enum import Enum
+from datetime import date
 
 from django.db import models
 
@@ -49,43 +48,6 @@ class Client(DateMixin, models.Model):
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email', 'company_name', ]
 
 
-class Contract(DateMixin, models.Model):
-    """Contract model"""
-
-    sales_contact: User = models.ForeignKey(to=User,
-                                            limit_choices_to={"role": Role.COMMERCIAL.value},
-                                            on_delete=models.CASCADE,
-                                            related_name="commercials",
-                                            null=True,
-                                            blank=True)
-    client: Client = models.ForeignKey(to=Client,
-                                       on_delete=models.CASCADE,
-                                       related_name="clients")
-    status: bool = models.BooleanField(verbose_name="Contract signed", default=False)
-    amount: float = models.FloatField(verbose_name="Amount (€)")
-    payment_due: datetime = models.DateTimeField(null=True, blank=True)
-
-    @property
-    def contract_number(self) -> str:
-        return f"{'0' * (6 - len(str(self.pk)))}{self.pk}"
-
-    @property
-    def contract_title(self) -> str:
-        formatted_date = self.date_created.strftime('%m%d%Y')
-        base_title = f"{self.contract_number}__EPICEVENTS__{formatted_date}#{self.client.pk}"
-        if not self.status:
-            return f"{base_title}_(UNSIGNED)"
-        if not self.payment_due:
-            return f"{base_title}_(SIGNED / UNPAID)"
-        return f"{base_title}_(PAID)"
-
-    def __str__(self) -> str:
-        return self.contract_title
-
-    class Meta:
-        ordering = ["client"]
-
-
 class EventStatus(models.Model):
     """Event status possibilities"""
 
@@ -123,6 +85,50 @@ class Event(DateMixin, models.Model):
         formatted_date = self.event_date.strftime('%m%d%Y')
         name = f"EVENT-{number} - {formatted_date} - ({self.event_status})"
         return name
+
+    def __str__(self) -> str:
+        return self.event_name
+
+    class Meta:
+        ordering = ["client"]
+
+
+class Contract(DateMixin, models.Model):
+    """Contract model"""
+
+    sales_contact: User = models.ForeignKey(to=User,
+                                            limit_choices_to={"role": Role.COMMERCIAL.value},
+                                            on_delete=models.CASCADE,
+                                            related_name="commercials",
+                                            null=True,
+                                            blank=True)
+    client: Client = models.ForeignKey(to=Client,
+                                       on_delete=models.CASCADE,
+                                       related_name="clients")
+    status: bool = models.BooleanField(verbose_name="Contract signed", default=False)
+    amount: float = models.FloatField(verbose_name="Amount (€)")
+    payment_due: date = models.DateField(null=True, blank=True)
+    event: Event = models.ForeignKey(to=Event,
+                                     on_delete=models.CASCADE,
+                                     related_name="events_contract",
+                                     null=True)
+
+    @property
+    def contract_number(self) -> str:
+        return f"{'0' * (6 - len(str(self.pk)))}{self.pk}"
+
+    @property
+    def contract_title(self) -> str:
+        formatted_date = self.date_created.strftime('%m%d%Y')
+        base_title = f"{self.contract_number}__EPICEVENTS__{formatted_date}#{self.client.pk}"
+        if not self.status:
+            return f"{base_title}_(UNSIGNED)"
+        if not self.payment_due:
+            return f"{base_title}_(SIGNED / UNPAID)"
+        return f"{base_title}_(PAID)"
+
+    def __str__(self) -> str:
+        return self.contract_title
 
     class Meta:
         ordering = ["client"]
