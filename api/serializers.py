@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 from api.models import Client, Contract, Event, EventStatus
 from utils import validate_phone_number
@@ -68,6 +69,20 @@ class ContractListSerializer(ModelSerializer):
             'event': {'write_only': True},
         }
 
+    def validate_client(self, value):
+        user_clients = [
+            client for client in Client.objects.filter(sales_contact=self.context['seller'])
+        ]
+        if value in user_clients:
+            return value
+        raise ValidationError('This client is not assigned to you.')
+
+    @classmethod
+    def validate_amount(cls, value):
+        if value < 0:
+            raise ValidationError('The amount must be positive.')
+        return value
+
 
 class ContractDetailSerializer(ModelSerializer):
     client = ClientDetailSerializer()
@@ -82,6 +97,15 @@ class ContractDetailSerializer(ModelSerializer):
                   'amount',
                   'payment_due',
                   'event']
+
+    def to_representation(self, instance):
+        """ check if client is assigned to the seller """
+        user_clients = [
+            client for client in Client.objects.filter(sales_contact=self.context['seller'])
+        ]
+        if instance.client not in user_clients:
+            raise ValidationError("This contract does not belong to one of your clients.")
+        return super(ContractDetailSerializer, self).to_representation(instance)
 
 
 # -------------------------------- Event --------------------------------

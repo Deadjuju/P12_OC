@@ -2,7 +2,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from api.models import Client, Contract, Event
-from api.permissions import IsCommercialClientOrSupportClientReadOnly
+from api.permissions import IsCommercial, IsCommercialClientOrSupportClientReadOnly
 from api.serializers import (ClientDetailSerializer,
                              ClientListSerializer,
                              ContractDetailSerializer,
@@ -52,9 +52,23 @@ class ContractViewset(MultipleSerializerMixin,
                       ModelViewSet):
     serializer_class = ContractListSerializer
     detail_serializer_class = ContractDetailSerializer
+    permission_classes = [IsAuthenticated, IsCommercial]
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_context(self):
+        context = super(ContractViewset, self).get_serializer_context()
+        context.update({"seller": self.request.user})
+        return context
 
     def get_queryset(self):
-        return Contract.objects.all()
+        all_contracts = Contract.objects.all()
+        if self.action == "list":
+            contracts = Contract.objects.filter(sales_contact=self.request.user.id)
+            return contracts
+        return all_contracts
+
+    def perform_create(self, serializer):
+        serializer.save(sales_contact=self.request.user)
 
 
 # -------------------------------- Event --------------------------------
