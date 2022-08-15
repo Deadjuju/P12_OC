@@ -111,7 +111,8 @@ class Contract(DateMixin, models.Model):
     event: Event = models.ForeignKey(to=Event,
                                      on_delete=models.CASCADE,
                                      related_name="events_contract",
-                                     null=True)
+                                     blank=True,
+                                     null=True,)
 
     @property
     def contract_number(self) -> str:
