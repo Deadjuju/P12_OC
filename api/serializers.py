@@ -1,3 +1,4 @@
+from rest_framework import exceptions
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 from api.models import Client, Contract, Event, EventStatus
@@ -100,15 +101,22 @@ class ContractDetailSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         """ check if client is assigned to the seller """
+
         user_clients = [
             client for client in Client.objects.filter(sales_contact=self.context['seller'])
         ]
-        if instance.client not in user_clients:
-            raise ValidationError("This contract does not belong to one of your clients.")
-        return super(ContractDetailSerializer, self).to_representation(instance)
+        if instance.client in user_clients:
+            return super(ContractDetailSerializer, self).to_representation(instance)
+        raise exceptions.PermissionDenied(detail="This contract does not belong to one of your clients.")
 
 
 # -------------------------------- Event --------------------------------
+
+class EventStatusSerializer(ModelSerializer):
+    class Meta:
+        model = EventStatus
+        fields = ['id', 'status', ]
+
 
 class EventListSerializer(ModelSerializer):
     class Meta:
@@ -121,17 +129,12 @@ class EventListSerializer(ModelSerializer):
                   'event_date',
                   'notes'
                   ]
+        read_only_fields = ('support_contact',)
         extra_kwargs = {
             'attendees': {'write_only': True},
             'event_date': {'write_only': True},
             'notes': {'write_only': True},
         }
-
-
-class EventStatusSerializer(ModelSerializer):
-    class Meta:
-        model = EventStatus
-        fields = ['id', 'status', ]
 
 
 class EventDetailSerializer(ModelSerializer):
@@ -148,3 +151,16 @@ class EventDetailSerializer(ModelSerializer):
                   'event_date',
                   'notes'
                   ]
+        read_only_fields = ('support_contact',)
+
+    def to_representation(self, instance):
+        """ check if client is assigned to the support """
+
+        user = self.context['user']
+        if user.role == "SUPPORT" and (
+                instance in [event for event in Event.objects.filter(support_contact=user)]
+        ):
+            return super(EventDetailSerializer, self).to_representation(instance)
+        if user.role == "COMMERCIAL" and user == instance.client.sales_contact:
+            return super(EventDetailSerializer, self).to_representation(instance)
+        raise exceptions.PermissionDenied(detail="This event does not belong to one of your clients.")

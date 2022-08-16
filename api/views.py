@@ -2,7 +2,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from api.models import Client, Contract, Event
-from api.permissions import IsCommercial, IsCommercialClientOrSupportClientReadOnly
+from api.permissions import (IsCommercial,
+                             IsCommercialOrSupportReadAndUpdateEvents,
+                             IsCommercialOrSupportReadOnlyClients)
 from api.serializers import (ClientDetailSerializer,
                              ClientListSerializer,
                              ContractDetailSerializer,
@@ -29,7 +31,7 @@ class ClientViewset(MultipleSerializerMixin,
                     ModelViewSet):
     serializer_class = ClientListSerializer
     detail_serializer_class = ClientDetailSerializer
-    permission_classes = [IsAuthenticated, IsCommercialClientOrSupportClientReadOnly]
+    permission_classes = [IsAuthenticated, IsCommercialOrSupportReadOnlyClients]
     http_method_names = ['get', 'post', 'patch']
 
     def get_queryset(self):
@@ -77,6 +79,11 @@ class EventViewset(MultipleSerializerMixin,
                    ModelViewSet):
     serializer_class = EventListSerializer
     detail_serializer_class = EventDetailSerializer
+    queryset = Event.objects.all()
+    permission_classes = [IsAuthenticated, IsCommercialOrSupportReadAndUpdateEvents]
+    http_method_names = ['get', 'post', 'patch']
 
-    def get_queryset(self):
-        return Event.objects.all()
+    def get_serializer_context(self):
+        context = super(EventViewset, self).get_serializer_context()
+        context.update({"user": self.request.user})
+        return context
