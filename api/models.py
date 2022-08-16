@@ -76,7 +76,7 @@ class Event(DateMixin, models.Model):
     event_status: EventStatus = models.ForeignKey(to=EventStatus,
                                                   on_delete=models.CASCADE,
                                                   related_name="events_status")
-    event_date: date = models.DateField(null=True, blank=True)
+    event_date: date = models.DateField()
     notes = models.TextField(help_text="Important notes", blank=True)
 
     @property
