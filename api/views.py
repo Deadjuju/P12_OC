@@ -1,4 +1,6 @@
-from django.contrib.auth.models import AnonymousUser
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -34,6 +36,10 @@ class ClientViewset(MultipleSerializerMixin,
     detail_serializer_class = ClientDetailSerializer
     permission_classes = [IsAuthenticated, IsCommercialOrSupportReadOnlyClients]
     http_method_names = ['get', 'post', 'patch']
+    # filter_backends = [filters.SearchFilter]
+    # search_fields = ['company_name', 'email']
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['company_name', 'email']
 
     def get_queryset(self):
         """
@@ -57,6 +63,21 @@ class ClientViewset(MultipleSerializerMixin,
 
 
 # -------------------------------- Contract --------------------------------
+# class ContractFilter(django_filters.FilterSet):
+#     client = django_filters.CharFilter()
+#     client__company_name = django_filters.CharFilter(field_name='client', lookup_expr='company_name')
+#     client__email = django_filters.CharFilter(field_name='client', lookup_expr='email')
+#
+#     amount = django_filters.NumberFilter(field_name='amount', lookup_expr='amount')
+#     amount__gt = django_filters.NumberFilter(field_name='amount', lookup_expr='amount__gt')
+#     amount__lt = django_filters.NumberFilter(field_name='amount', lookup_expr='amount__lt')
+#
+#     date = django_filters.DateFilter(field_name='payment_due', lookup_expr='date')
+#
+#     class Meta:
+#         model = Contract
+#         fields = ['client', 'amount', 'date']
+
 
 class ContractViewset(MultipleSerializerMixin,
                       ModelViewSet):
@@ -64,6 +85,9 @@ class ContractViewset(MultipleSerializerMixin,
     detail_serializer_class = ContractDetailSerializer
     permission_classes = [IsAuthenticated, IsCommercial]
     http_method_names = ['get', 'post', 'patch']
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['client__company_name', 'client__email', 'payment_due', 'amount', ]
+    # filterset_class = ContractFilter
 
     def get_serializer_context(self):
         context = super(ContractViewset, self).get_serializer_context()
@@ -90,6 +114,8 @@ class EventViewset(MultipleSerializerMixin,
     queryset = Event.objects.all()
     permission_classes = [IsAuthenticated, IsCommercialOrSupportReadAndUpdateEvents]
     http_method_names = ['get', 'post', 'patch']
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['client__company_name', 'client__email', 'event_date']
 
     def get_serializer_context(self):
         context = super(EventViewset, self).get_serializer_context()
