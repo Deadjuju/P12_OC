@@ -44,6 +44,7 @@ class ClientDetailSerializer(ModelSerializer):
         fields = ['id',
                   'first_name',
                   'last_name',
+                  'email',
                   'phone',
                   'mobile',
                   'company_name',
