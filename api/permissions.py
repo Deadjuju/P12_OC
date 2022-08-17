@@ -9,13 +9,18 @@ class IsCommercialOrSupportReadOnlyClients(BasePermission):
 
     def has_permission(self, request, view):
         print(f"METHOD: {request.method}")
+        is_support: bool = bool(request.user.role == "SUPPORT")
+        is_commercial: bool = bool(request.user.role == "COMMERCIAL")
         if request.method == "DELETE":
             return False
-        return bool(request.user.role == "COMMERCIAL")
+        if request.method == "POST" and is_support:
+            return False
+        return bool(is_commercial or is_support)
 
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
+        print("*" * 520)
         return bool(request.user == obj.sales_contact)
 
 

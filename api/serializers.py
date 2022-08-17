@@ -19,6 +19,7 @@ class ClientListSerializer(ModelSerializer):
                   'mobile',
                   'is_confirmed_client',
                   'sales_contact']
+        read_only_fields = ('sales_contact',)
         extra_kwargs = {
             'first_name': {'write_only': True},
             'last_name': {'write_only': True},
@@ -26,7 +27,6 @@ class ClientListSerializer(ModelSerializer):
             'phone': {'write_only': True},
             'mobile': {'write_only': True},
             'is_confirmed_client': {'write_only': True},
-            'sales_contact': {'write_only': True},
         }
 
     @classmethod
@@ -49,6 +49,7 @@ class ClientDetailSerializer(ModelSerializer):
                   'company_name',
                   'is_confirmed_client',
                   'sales_contact']
+        read_only_fields = ('sales_contact',)
 
 
 # -------------------------------- Contract --------------------------------

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -35,13 +36,20 @@ class ClientViewset(MultipleSerializerMixin,
     http_method_names = ['get', 'post', 'patch']
 
     def get_queryset(self):
+        """
+        Commercials can read all clients and access only their clients
+        Supports can read only their clients
+        """
+
         clients = Client.objects.all()
         user = self.request.user
+        if user.role == "SUPPORT":
+            events = Event.objects.filter(support_contact=user)
+            clients = list(set([event.client for event in events]))
         if self.action == "list":
             return clients
         if user.role == "COMMERCIAL":
             return Client.objects.filter(sales_contact=user)
-        users_clients = Client.objects.filter(sales_contact=user)
         return clients
 
     def perform_create(self, serializer):
