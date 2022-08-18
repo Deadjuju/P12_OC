@@ -49,11 +49,11 @@ class ClientViewset(MultipleSerializerMixin,
 
         clients = Client.objects.all()
         user = self.request.user
-        if user.role == "SUPPORT":
-            events = Event.objects.filter(support_contact=user)
-            clients = list(set([event.client for event in events]))
         if self.action == "list":
             return clients
+        if user.role == "SUPPORT":
+            events = Event.objects.filter(support_contact=user)
+            return Client.objects.filter(events_client__in=events).distinct()
         if user.role == "COMMERCIAL":
             return Client.objects.filter(sales_contact=user)
         return clients
