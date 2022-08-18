@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
+from users.models import Role
+
 
 class IsCommercialOrSupportReadOnlyClients(BasePermission):
     """
@@ -9,8 +11,8 @@ class IsCommercialOrSupportReadOnlyClients(BasePermission):
 
     def has_permission(self, request, view):
         print(f"METHOD: {request.method}")
-        is_support: bool = bool(request.user.role == "SUPPORT")
-        is_commercial: bool = bool(request.user.role == "COMMERCIAL")
+        is_support: bool = bool(request.user.role == Role.SUPPORT.value)
+        is_commercial: bool = bool(request.user.role == Role.COMMERCIAL.value)
         if request.method == "DELETE":
             return False
         if request.method == "POST" and is_support:
@@ -32,7 +34,7 @@ class IsCommercial(BasePermission):
     def has_permission(self, request, view):
         if request.method == "DELETE":
             return False
-        return bool(request.user.role == "COMMERCIAL")
+        return bool(request.user.role == Role.COMMERCIAL.value)
 
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
@@ -52,12 +54,12 @@ class IsCommercialOrSupportReadAndUpdateEvents(BasePermission):
         if request.method == "DELETE":
             return False
         if request.method == "POST":
-            return bool(request.user.role == "COMMERCIAL")
-        return bool(request.user.role == "COMMERCIAL" or request.user.role == "SUPPORT")
+            return bool(request.user.role == Role.COMMERCIAL.value)
+        return bool(request.user.role == Role.COMMERCIAL.value or request.user.role == Role.SUPPORT.value)
 
     def has_object_permission(self, request, view, obj):
-        is_support = bool(obj.support_contact == request.user and request.user.role == "SUPPORT")
-        is_commercial = bool(request.user.role == "COMMERCIAL" and obj.client.sales_contact == request.user)
+        is_support = bool(obj.support_contact == request.user and request.user.role == Role.SUPPORT.value)
+        is_commercial = bool(request.user.role == Role.COMMERCIAL.value and obj.client.sales_contact == request.user)
         if request.method in SAFE_METHODS:
             return True
         return bool(is_support or is_commercial)
