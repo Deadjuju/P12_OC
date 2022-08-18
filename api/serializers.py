@@ -50,7 +50,20 @@ class ClientDetailSerializer(ModelSerializer):
                   'company_name',
                   'is_confirmed_client',
                   'sales_contact']
-        read_only_fields = ('sales_contact',)
+        read_only_fields = ('sales_contact', )
+
+    def to_representation(self, instance):
+        """ check if client is assigned to the user """
+
+        user = self.context['current_user']
+        if user.role == "COMMERCIAL" and (instance in Client.objects.filter(sales_contact=user)):
+            return super(ClientDetailSerializer, self).to_representation(instance)
+        if user.role == "SUPPORT":
+            events = Event.objects.filter(support_contact=user)
+            support_clients = Client.objects.filter(events_client__in=events).distinct()
+            if instance in support_clients:
+                return super(ClientDetailSerializer, self).to_representation(instance)
+        raise exceptions.PermissionDenied(detail="This client is not assigned to you.")
 
 
 # -------------------------------- Contract --------------------------------

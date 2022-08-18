@@ -34,6 +34,7 @@ class ClientViewset(MultipleSerializerMixin,
                     ModelViewSet):
     serializer_class = ClientListSerializer
     detail_serializer_class = ClientDetailSerializer
+    queryset = Client.objects.all()
     permission_classes = [IsAuthenticated, IsCommercialOrSupportReadOnlyClients]
     http_method_names = ['get', 'post', 'patch']
     # filter_backends = [filters.SearchFilter]
@@ -41,22 +42,11 @@ class ClientViewset(MultipleSerializerMixin,
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['company_name', 'email']
 
-    def get_queryset(self):
-        """
-        Commercials can read all clients and access only their clients
-        Supports can read only their clients
-        """
-
-        clients = Client.objects.all()
-        user = self.request.user
-        if self.action == "list":
-            return clients
-        if user.role == "SUPPORT":
-            events = Event.objects.filter(support_contact=user)
-            return Client.objects.filter(events_client__in=events).distinct()
-        if user.role == "COMMERCIAL":
-            return Client.objects.filter(sales_contact=user)
-        return clients
+    def get_serializer_context(self):
+        print("CONTEXT")
+        context = super(ClientViewset, self).get_serializer_context()
+        context.update({"current_user": self.request.user})
+        return context
 
     def perform_create(self, serializer):
         serializer.save(sales_contact=self.request.user)
@@ -83,6 +73,7 @@ class ContractViewset(MultipleSerializerMixin,
                       ModelViewSet):
     serializer_class = ContractListSerializer
     detail_serializer_class = ContractDetailSerializer
+    queryset = Contract.objects.all()
     permission_classes = [IsAuthenticated, IsCommercial]
     http_method_names = ['get', 'post', 'patch']
     filter_backends = [DjangoFilterBackend]
@@ -93,13 +84,6 @@ class ContractViewset(MultipleSerializerMixin,
         context = super(ContractViewset, self).get_serializer_context()
         context.update({"seller": self.request.user})
         return context
-
-    def get_queryset(self):
-        all_contracts = Contract.objects.all()
-        if self.action == "list":
-            contracts = Contract.objects.filter(sales_contact=self.request.user.id)
-            return contracts
-        return all_contracts
 
     def perform_create(self, serializer):
         serializer.save(sales_contact=self.request.user)
