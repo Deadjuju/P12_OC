@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from api.models import Client, Contract, Event
+from api.pagination import SetPagination
 from api.permissions import (IsCommercial,
                              IsCommercialOrSupportReadAndUpdateEvents,
                              IsCommercialOrSupportReadOnlyClients)
@@ -37,10 +38,9 @@ class ClientViewset(MultipleSerializerMixin,
     queryset = Client.objects.all()
     permission_classes = [IsAuthenticated, IsCommercialOrSupportReadOnlyClients]
     http_method_names = ['get', 'post', 'patch']
-    # filter_backends = [filters.SearchFilter]
-    # search_fields = ['company_name', 'email']
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['company_name', 'email']
+    pagination_class = SetPagination
 
     def get_serializer_context(self):
         print("CONTEXT")
@@ -79,6 +79,7 @@ class ContractViewset(MultipleSerializerMixin,
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['client__company_name', 'client__email', 'payment_due', 'amount', ]
     # filterset_class = ContractFilter
+    pagination_class = SetPagination
 
     def get_serializer_context(self):
         context = super(ContractViewset, self).get_serializer_context()
@@ -100,6 +101,7 @@ class EventViewset(MultipleSerializerMixin,
     http_method_names = ['get', 'post', 'patch']
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['client__company_name', 'client__email', 'event_date']
+    pagination_class = SetPagination
 
     def get_serializer_context(self):
         context = super(EventViewset, self).get_serializer_context()
