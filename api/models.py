@@ -10,19 +10,19 @@ from utils import validate_phone_number
 class Client(DateMixin, models.Model):
     """Client model"""
 
-    first_name: str = models.CharField(max_length=25, blank=False)
-    last_name: str = models.CharField(max_length=25, blank=False)
-    email: str = models.EmailField(unique=True, blank=False)
-    phone: str = models.CharField(max_length=20, blank=True, default="")
-    mobile: str = models.CharField(max_length=20, blank=True, default="")
-    company_name: str = models.CharField(max_length=250, blank=False)
-    is_confirmed_client: bool = models.BooleanField(verbose_name="Confirmed client", default=False)
-    sales_contact: User = models.ForeignKey(to=User,
-                                            limit_choices_to={"role": Role.COMMERCIAL.value},
-                                            on_delete=models.CASCADE,
-                                            related_name="clients",
-                                            null=True,
-                                            blank=True)
+    first_name = models.CharField(max_length=25, blank=False)
+    last_name = models.CharField(max_length=25, blank=False)
+    email = models.EmailField(unique=True, blank=False)
+    phone = models.CharField(max_length=20, blank=True, default="")
+    mobile = models.CharField(max_length=20, blank=True, default="")
+    company_name = models.CharField(max_length=250, blank=False)
+    is_confirmed_client = models.BooleanField(verbose_name="Confirmed client", default=False)
+    sales_contact = models.ForeignKey(to=User,
+                                      limit_choices_to={"role": Role.COMMERCIAL.value},
+                                      on_delete=models.CASCADE,
+                                      related_name="clients",
+                                      null=True,
+                                      blank=True)
 
     is_cleaned: bool = False
 
@@ -47,11 +47,14 @@ class Client(DateMixin, models.Model):
 
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email', 'company_name', ]
 
+    class Meta:
+        ordering = ["company_name"]
+
 
 class EventStatus(models.Model):
     """Event status possibilities"""
 
-    status: str = models.CharField(max_length=50)
+    status = models.CharField(max_length=50)
 
     def __str__(self):
         return self.status.title()
@@ -63,20 +66,20 @@ class EventStatus(models.Model):
 class Event(DateMixin, models.Model):
     """Event model"""
 
-    client: Client = models.ForeignKey(to=Client,
-                                       on_delete=models.CASCADE,
-                                       related_name="events_client")
-    attendees: int = models.PositiveIntegerField(default=0)
-    support_contact: User = models.ForeignKey(to=User,
-                                              limit_choices_to={"role": Role.SUPPORT.value},
-                                              on_delete=models.CASCADE,
-                                              related_name="events_support",
-                                              null=True,
-                                              blank=True)
-    event_status: EventStatus = models.ForeignKey(to=EventStatus,
-                                                  on_delete=models.CASCADE,
-                                                  related_name="events_status")
-    event_date: date = models.DateField()
+    client = models.ForeignKey(to=Client,
+                               on_delete=models.CASCADE,
+                               related_name="events_client")
+    attendees = models.PositiveIntegerField(default=0)
+    support_contact = models.ForeignKey(to=User,
+                                        limit_choices_to={"role": Role.SUPPORT.value},
+                                        on_delete=models.CASCADE,
+                                        related_name="events_support",
+                                        null=True,
+                                        blank=True)
+    event_status = models.ForeignKey(to=EventStatus,
+                                     on_delete=models.CASCADE,
+                                     related_name="events_status")
+    event_date = models.DateField()
     notes = models.TextField(help_text="Important notes", blank=True)
 
     @property
@@ -96,23 +99,23 @@ class Event(DateMixin, models.Model):
 class Contract(DateMixin, models.Model):
     """Contract model"""
 
-    sales_contact: User = models.ForeignKey(to=User,
-                                            limit_choices_to={"role": Role.COMMERCIAL.value},
-                                            on_delete=models.CASCADE,
-                                            related_name="commercials",
-                                            null=True,
-                                            blank=True)
-    client: Client = models.ForeignKey(to=Client,
-                                       on_delete=models.CASCADE,
-                                       related_name="clients")
-    status: bool = models.BooleanField(verbose_name="Contract signed", default=False)
-    amount: float = models.FloatField(verbose_name="Amount (€)")
-    payment_due: date = models.DateField(null=True, blank=True)
-    event: Event = models.ForeignKey(to=Event,
-                                     on_delete=models.CASCADE,
-                                     related_name="events_contract",
-                                     blank=True,
-                                     null=True,)
+    sales_contact = models.ForeignKey(to=User,
+                                      limit_choices_to={"role": Role.COMMERCIAL.value},
+                                      on_delete=models.CASCADE,
+                                      related_name="commercials",
+                                      null=True,
+                                      blank=True)
+    client = models.ForeignKey(to=Client,
+                               on_delete=models.CASCADE,
+                               related_name="clients")
+    status = models.BooleanField(verbose_name="Contract signed", default=False)
+    amount = models.FloatField(verbose_name="Amount (€)")
+    payment_due = models.DateField(null=True, blank=True)
+    event = models.ForeignKey(to=Event,
+                              on_delete=models.CASCADE,
+                              related_name="events_contract",
+                              blank=True,
+                              null=True, )
 
     @property
     def contract_number(self) -> str:
