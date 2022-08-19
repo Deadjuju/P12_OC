@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.models import Client, Contract, Event
 from api.pagination import SetPagination
-from api.permissions import (IsCommercial,
+from api.permissions import (IsCommercialOrSupportReadOnlyContracts,
                              IsCommercialOrSupportReadAndUpdateEvents,
                              IsCommercialOrSupportReadOnlyClients)
 from api.serializers import (ClientDetailSerializer,
@@ -74,7 +74,7 @@ class ContractViewset(MultipleSerializerMixin,
     serializer_class = ContractListSerializer
     detail_serializer_class = ContractDetailSerializer
     queryset = Contract.objects.all()
-    permission_classes = [IsAuthenticated, IsCommercial]
+    permission_classes = [IsAuthenticated, IsCommercialOrSupportReadOnlyContracts]
     http_method_names = ['get', 'post', 'patch']
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['client__company_name', 'client__email', 'payment_due', 'amount', ]
