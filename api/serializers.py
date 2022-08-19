@@ -2,6 +2,7 @@ from rest_framework import exceptions
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 from api.models import Client, Contract, Event, EventStatus
+from loggers.warning_logger import SerializerLogger
 from utils import validate_phone_number
 
 
@@ -38,7 +39,7 @@ class ClientListSerializer(ModelSerializer):
         return validate_phone_number(value, is_from_serializer=True)
 
 
-class ClientDetailSerializer(ModelSerializer):
+class ClientDetailSerializer(ModelSerializer, SerializerLogger):
     class Meta:
         model = Client
         fields = ['id',
@@ -63,6 +64,7 @@ class ClientDetailSerializer(ModelSerializer):
             support_clients = Client.objects.filter(events_client__in=events).distinct()
             if instance in support_clients:
                 return super(ClientDetailSerializer, self).to_representation(instance)
+        self.warning_logger_to_representation(user, instance)
         raise exceptions.PermissionDenied(detail="This client is not assigned to you.")
 
 
@@ -100,7 +102,7 @@ class ContractListSerializer(ModelSerializer):
         return value
 
 
-class ContractDetailSerializer(ModelSerializer):
+class ContractDetailSerializer(ModelSerializer, SerializerLogger):
     client = ClientDetailSerializer()
 
     class Meta:
@@ -117,11 +119,13 @@ class ContractDetailSerializer(ModelSerializer):
     def to_representation(self, instance):
         """ check if client is assigned to the seller """
 
+        user = self.context['seller']
         user_clients = [
-            client for client in Client.objects.filter(sales_contact=self.context['seller'])
+            client for client in Client.objects.filter(sales_contact=user)
         ]
         if instance.client in user_clients:
             return super(ContractDetailSerializer, self).to_representation(instance)
+        self.warning_logger_to_representation(user, instance)
         raise exceptions.PermissionDenied(detail="This contract does not belong to one of your clients.")
 
 
@@ -152,7 +156,7 @@ class EventListSerializer(ModelSerializer):
         }
 
 
-class EventDetailSerializer(ModelSerializer):
+class EventDetailSerializer(ModelSerializer, SerializerLogger):
     client = ClientDetailSerializer()
     event_status = EventStatusSerializer()
 
@@ -178,4 +182,5 @@ class EventDetailSerializer(ModelSerializer):
             return super(EventDetailSerializer, self).to_representation(instance)
         if user.role == "COMMERCIAL" and user == instance.client.sales_contact:
             return super(EventDetailSerializer, self).to_representation(instance)
+        self.warning_logger_to_representation(user, instance)
         raise exceptions.PermissionDenied(detail="This event does not belong to one of your clients.")
