@@ -20,11 +20,22 @@ DEBUG = True
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{name} {levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'warning.log',
+            'formatter': 'verbose',
         },
     },
     'loggers': {

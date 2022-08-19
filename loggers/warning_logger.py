@@ -16,7 +16,7 @@ class BaseLogger:
     @property
     def date_now(self):
         """ Format date of logger"""
-        return f"{self.now()} || "
+        return f"\n-> {self.now().strftime('%m/%d/%Y')} at {self.now().strftime('%H:%M:%S')} || "
 
 
 class PermissionLogger(BaseLogger):
