@@ -119,7 +119,7 @@ class ContractDetailSerializer(ModelSerializer, SerializerLogger):
     def to_representation(self, instance):
         """ check if client is assigned to the seller """
 
-        user = self.context['seller']
+        user = self.context['current_user']
         user_clients = [
             client for client in Client.objects.filter(sales_contact=user)
         ]
@@ -170,12 +170,12 @@ class EventDetailSerializer(ModelSerializer, SerializerLogger):
                   'event_date',
                   'notes'
                   ]
-        read_only_fields = ('support_contact',)
+        read_only_fields = ('support_contact', )
 
     def to_representation(self, instance):
         """ check if client is assigned to the support """
 
-        user = self.context['user']
+        user = self.context['current_user']
         if user.role == "SUPPORT" and (
                 instance in [event for event in Event.objects.filter(support_contact=user)]
         ):

@@ -82,7 +82,7 @@ class ContractViewset(MultipleSerializerMixin,
         """Add current user (concerns the commercial team) to context serializer"""
 
         context = super(ContractViewset, self).get_serializer_context()
-        context.update({"seller": self.request.user})
+        context.update({"current_user": self.request.user})
         return context
 
     def perform_create(self, serializer):
@@ -113,5 +113,5 @@ class EventViewset(MultipleSerializerMixin,
         """add user to serializer context"""
 
         context = super(EventViewset, self).get_serializer_context()
-        context.update({"user": self.request.user})
+        context.update({"current_user": self.request.user})
         return context
