@@ -56,4 +56,3 @@ class SerializerLogger(BaseLogger):
 
         message = f"{self.date_now}{user} try access to {instance._meta.model_name}: {instance}"
         self.logger.warning(message)
-
