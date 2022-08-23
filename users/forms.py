@@ -6,11 +6,16 @@ class UserAdminForm(ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'password', 'phone_number', 'role']
+        fields = ['email',
+                  'first_name',
+                  'last_name',
+                  'password',
+                  'phone_number',
+                  'role']
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
-        password = cleaned_data.get("password")
+        cleaned_data.get("password")
         return cleaned_data
 
     def save(self, commit=True) -> User:
