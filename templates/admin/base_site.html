@@ -1,0 +1,62 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <img src="{% static 'img/logo-epicevents.png' %}" alt="Logo EpicEvents">
+        <p>Epic Events Admin</p>
+    </h1>
+{% endblock branding %}
+
+{% block extrastyle %}
+    <style>
+        h1 {
+            font-family: cursive;
+        }
+        h1 img {
+            height:50px;
+        }
+        h1 img:hover {
+            animation: logoAnim 2s ease 0s infinite normal forwards;
+        }
+        @keyframes logoAnim {
+            0% {
+                transform: scale3d(1, 1, 1);
+            }
+
+            30% {
+                transform: scale3d(1.25, 0.75, 1);
+            }
+
+            40% {
+                transform: scale3d(0.75, 1.25, 1);
+            }
+
+            50% {
+                transform: scale3d(1.15, 0.85, 1);
+            }
+
+            65% {
+                transform: scale3d(0.95, 1.05, 1);
+            }
+
+            75% {
+                transform: scale3d(1.05, 0.95, 1);
+            }
+
+            100% {
+                transform: scale3d(1, 1, 1);
+            }
+        }
+    </style>
+{% endblock %}
