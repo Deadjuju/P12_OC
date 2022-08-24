@@ -22,7 +22,8 @@
     * [Les migrations](#section4_1)
     * [SuperUtilisateurs](#section4_2)
     * [Se connecter à l'interface administration](#section4_3)
-* [V!. Documentation de l'API](#chapter5)
+* [V. Documentation de l'API](#chapter5)
+* [VI. Rapport Flake8](#chapter6)
 
     
 ## I. Présentation du projet <a class="anchor" id="chapter1"></a>
@@ -41,13 +42,18 @@ L'**API** sera une application sécurisée garantissant la sécurité des donné
 Il s'agit ici des employés de **EpicEvents**.
 L'entreprise possède trois types d'employés:
 
-  - **MANAGEMENT (L'équipe de gestion)**: Ils possèdent le status de ***superutilisateur*** et utilisent l'interface **Admin** de Django.
-  - **COMMERCIALS (L'équipe de vente)**: Ils peuvent créer des clients et modifier leurs clients. Le CRM leur permettra également de renseigner des contrats et des évènements pour leurs clients les modifier.
-  - **SUPPORT (L'équipe de support)**: Ils s'occupent de l'organisation des évènements qui leurs sont attribués par l'équipe de gestion. Le CRM leur permet de modifier leurs évènements ainsi que d'avoir accès aux informations des clients et des contrats concernés par leurs évènements.
+  - **MANAGEMENT (L'équipe de gestion)**: Ils possèdent le status de ***superutilisateur*** et utilisent l'interface **Admin** de Django. 
+  >Voir la [section concernant l'interface administration](#section4_3) pour  plus d'informations.
+  - **COMMERCIAL (L'équipe de vente)**: Ils peuvent créer des clients et modifier leurs clients. Le CRM leur permettra également de renseigner des contrats et des évènements pour leurs clients et les modifier.
+  - **SUPPORT (L'équipe de support)**: Ils s'occupent de l'organisation des évènements qui leurs sont attribués par l'équipe de **gestion**. Le CRM leur permet de modifier leurs évènements ainsi que d'avoir accès aux informations des clients et des contrats concernés par leurs évènements.
 
 - **Client** - représente les clients de **EpicEvent**.
 - **Contract** - Un contrat est créé avant chaque événement
 - **Event** - Un événement rattaché à un contrat
+
+>- Tout les utilisateurs ont accés aux listes des **clients**, **contrats** et **évènements** en ***lecture seule***.    
+
+>*ℹ️ Pour plus d'informations sur les permissions de chaque utilisateurs voir <a href="https://documenter.getpostman.com/view/18466277/VUquMFr7" target="_blank">la documentation de l'API</a>.*
 
 ***  
 
@@ -69,8 +75,7 @@ Ouvrez un terminal dans le dossier de destination et entrez la commande suivante
 
 Il est également possible de télécharger le fichier zip contenant l'intégralité du code du programme: 
 
-<!-- ![](src_readme/download-zip.png "télécharger le zip du programme")   -->
---- METTRE IMAGE ---
+![](src_readme/download-zip.png "télécharger le zip du programme")  
    
 Rendez-vous ensuite avec le terminal au niveau de la racine du projet en exécutant la commande suivante:
 
@@ -220,8 +225,24 @@ Enfin, pour arrêter le serveur utilisez les touches *ctrl* + *c* dans le termin
 ## V. Documentation de l'API <a class="anchor" id="chapter5"></a>
 
 Une documentation détaillée de l'API est disponible à l'adresse suivante :  
-><a href="https://LIEN A METTRE" target="_blank">https://LIEN A METTRE</a>
+><a href="https://documenter.getpostman.com/view/18466277/VUquMFr7" target="_blank">https://documenter.getpostman.com/view/18466277/VUquMFr7</a>
 
 Vous trouverez dans cette documentation tout les points de terminaisons de l'API détaillés et documentés ainsi que des informations essentielles supplémentaires.
 
 ***
+
+## VI. Rapport Flake8 <a class="anchor" id="chapter6"></a>  
+
+**Flake8** permet d'éplucher le code écrit et de repérer les erreurs de syntaxes et les non conformités avec la **PEP**.
+Un rapport html contenant les éventuelles erreurs peut-être généré.
+
+Il se trouve à la racine du dossier dans le dossier : **flake8_rapport**
+
+> - flake8_rapport
+>   - index.html
+
+Un nouveau rapport peut-être généré en exécutant la commande suivante dans le terminal :
+
+    flake8 --format=html --htmldir=flake8_report
+
+***  
