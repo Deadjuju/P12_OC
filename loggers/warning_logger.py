@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import logging
 
 from rest_framework.request import Request
@@ -11,12 +11,11 @@ class BaseLogger:
     """
 
     logger = logging.getLogger(__name__)
-    now = datetime.datetime.now
 
     @property
     def date_now(self):
         """ Format date of logger"""
-        return f"\n-> {self.now().strftime('%m/%d/%Y')} at {self.now().strftime('%H:%M:%S')} || "
+        return f"\n-> {datetime.now().strftime('%m/%d/%Y')} at {datetime.now().strftime('%H:%M:%S')} || "
 
 
 class PermissionLogger(BaseLogger):
