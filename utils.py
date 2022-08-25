@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.core.exceptions import ValidationError
+from django.db import models
 from rest_framework.exceptions import ValidationError as ValidationErrorDRF
 
 
@@ -24,3 +27,11 @@ def validate_phone_number(phone_number: str, is_from_serializer: bool = False) -
             raise ValidationErrorDRF(f"ERROR (Phone number): |--> {phone_number} <--| is an invalide format.")
         raise ValidationError(f"ERROR (Phone number): |--> {phone_number} <--| is an invalide format.")
     return phone_number
+
+
+class DateMixin(models.Model):
+    class Meta:
+        abstract = True
+
+    date_created: datetime = models.DateTimeField(auto_now_add=True)
+    date_updated: datetime = models.DateTimeField(auto_now=True)

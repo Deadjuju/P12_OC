@@ -1,8 +1,7 @@
 from django.db import models
 
-from mixin import DateMixin
 from users.models import Role, User
-from utils import validate_phone_number
+from utils import DateMixin, validate_phone_number
 
 
 class Client(DateMixin, models.Model):
