@@ -13,7 +13,9 @@
 
 {% block branding %}
     <h1 id="site-name">
-        <img src="{% static 'img/logo-epicevents.png' %}" alt="Logo EpicEvents">
+        <a href="{% url 'admin:index' %}">
+            <img src="{% static 'img/logo-epicevents.png' %}" alt="Logo EpicEvents">
+        </a>
         <p>Epic Events Admin</p>
     </h1>
 {% endblock branding %}
