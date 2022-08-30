@@ -71,7 +71,7 @@ Ce programme a été écrit sur les versions
 
 Ouvrez un terminal dans le dossier de destination et entrez la commande suivante pour télécharger le repository:   
  
-    git clone https://github.com/Deadjuju/P1_OC.git
+    git clone https://github.com/Deadjuju/P12_OC.git
 
 Il est également possible de télécharger le fichier zip contenant l'intégralité du code du programme: 
 
