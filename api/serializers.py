@@ -89,7 +89,7 @@ class ContractListSerializer(ModelSerializer):
 
     def validate_client(self, value):
         user_clients = [
-            client for client in Client.objects.filter(sales_contact=self.context['seller'])
+            client for client in Client.objects.filter(sales_contact=self.context['current_user'])
         ]
         if value in user_clients:
             return value
