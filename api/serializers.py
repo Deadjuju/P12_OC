@@ -120,11 +120,22 @@ class ContractDetailSerializer(ModelSerializer, SerializerLogger):
         """ check if client is assigned to the seller """
 
         user = self.context['current_user']
-        user_clients = [
-            client for client in Client.objects.filter(sales_contact=user)
-        ]
-        if instance.client in user_clients:
-            return super(ContractDetailSerializer, self).to_representation(instance)
+
+        # contract must be to commercial client
+        if user.role == "COMMERCIAL":
+            user_clients = [
+                client for client in Client.objects.filter(sales_contact=user)
+            ]
+            if instance.client in user_clients:
+                return super(ContractDetailSerializer, self).to_representation(instance)
+            
+        # contract must be to support event
+        if user.role == "SUPPORT":
+            user_events = [
+                event for event in Event.objects.filter(support_contact=user)
+            ]
+            if instance.event in user_events:
+                return super(ContractDetailSerializer, self).to_representation(instance)
         self.warning_logger_to_representation(user, instance)
         raise exceptions.PermissionDenied(detail="This contract does not belong to one of your clients.")
 
